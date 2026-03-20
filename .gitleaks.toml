@@ -1,0 +1,9 @@
+[[allowlist]]
+description = "False positive: generic-api-key in DataTransferEF_SQLToElasticsearch/App.config"
+rules = ["generic-api-key"]
+paths = ["DataTransferEF_SQLToElasticsearch/App.config"]
+
+[[allowlist]]
+description = "False positive: generic-api-key in WebApiODataElasticsearch/Web.config"
+rules = ["generic-api-key"]
+paths = ["WebApiODataElasticsearch/Web.config"]
