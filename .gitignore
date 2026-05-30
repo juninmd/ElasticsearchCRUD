@@ -1,35 +1,52 @@
-Damienbod.BusinessLayer/obj
-Damienbod.ElasticSearchProvider/bin
-Damienbod.ElasticSearchProvider/obj
-Damienbod.BusinessLayer/bin
-WebApiODataElasticsearch/bin
-WebApiODataElasticsearch/obj
-WebApiODataElasticsearch/WebApiODataElasticsearch.csproj.user
-Damienbod.AnimalProvider/obj
-Damienbod.AnimalProvider/bin
-WebApiODataElasticsearch.v12.suo
-ElasticLINQ/bin
-ElasticLINQ/obj
-ConsoleElasticsearchCrudExample/bin
-ConsoleElasticsearchCrudExample/obj
-ElasticsearchCrud.v12.suo
-WebApiElasticsearchCrudExample/bin
-WebApiElasticsearchCrudExample/obj
-WebApiElasticsearchCrudExample/WebApiElasticsearchCrudExample.csproj.user
-ElasticsearchCRUD/obj
-ElasticsearchCRUD/bin
-ElasticsearchCRUD.Integration.Test/obj
-ElasticsearchCRUD.Integration.Test/bin
-ElasticsearchCrud.sln.DotSettings.user
-DataTransferEF_SQLToElasticsearch/bin/Release/EntityFramework.SqlServer.xml
-DataTransferEF_SQLToElasticsearch/bin
-DataTransferEF_SQLToElasticsearch/obj
-ElasticsearchCRUD/ElasticsearchCRUD.csproj.user
-Examples/ConsoleElasticsearchCrudExample/bin
-Examples/ConsoleElasticsearchCrudExample/obj
-Examples/Damienbod.AnimalProvider/bin
-Examples/DataTransferEF_SQLToElasticsearch/obj
-Examples/Damienbod.AnimalProvider/obj
-Examples/DataTransferEF_SQLToElasticsearch/bin
-Examples/WebApiElasticsearchCrudExample/bin
-Examples/WebApiElasticsearchCrudExample/obj
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+*.p12
+*.pfx
+secrets/
+config/secrets.yml
+
+# NuGet packages directory
+packages/
+
+# Build outputs
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+*.vsix
+
+# Visual Studio / IDE files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.DotSettings.user
+.vs/
+*.csproj.user
+*.userprefs
+
+# NuGet artifacts
+*.nupkg
+NuGet.exe
+*.nuget.props
+*.nuget.targets
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+*.bak
+*.sass-cache/
+*.cache/
+*.DS_Store
+Thumbs.db
+
+# Test results
+TestResults/
+*.trx
+*.coverage
