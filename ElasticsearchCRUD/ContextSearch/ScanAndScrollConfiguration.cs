@@ -16,12 +16,12 @@ namespace ElasticsearchCRUD.ContextSearch
 
 		public string GetScrollScanUrlForSetup()
 		{
-			return string.Format("search_type=scan&scroll={0}&size={1}", _lengthOfTime.GetTimeUnit(), _size);
+			return $"search_type=scan&scroll={_lengthOfTime.GetTimeUnit()}&size={_size}";
 		}
 
 		public string GetScrollScanUrlForRunning()
 		{
-			return string.Format("_search/scroll?scroll={0}&scroll_id=", _lengthOfTime.GetTimeUnit());
+			return $"_search/scroll?scroll={_lengthOfTime.GetTimeUnit()}&scroll_id=";
 		}
 
 	}

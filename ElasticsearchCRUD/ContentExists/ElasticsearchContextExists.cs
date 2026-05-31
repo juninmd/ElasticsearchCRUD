@@ -36,10 +36,7 @@ namespace ElasticsearchCRUD.ContentExists
 				entityId
 			);
 
-			var elasticsearchUrlForHeadRequest = string.Format("{0}/{1}/{2}/", _connectionString,
-				elasticSearchMapping.GetIndexForType(typeof (T)), elasticSearchMapping.GetDocumentType(typeof (T)));
-
-			var uri = new Uri(elasticsearchUrlForHeadRequest + entityId + RoutingDefinition.GetRoutingUrl(routingDefinition));
+			var uri = new Uri($"{_connectionString}/{elasticSearchMapping.GetIndexForType(typeof(T))}/{elasticSearchMapping.GetDocumentType(typeof(T))}/{entityId}{RoutingDefinition.GetRoutingUrl(routingDefinition)}");
 			return await ExistsHeadRequest.ExistsAsync(uri);
 		}
 
@@ -51,9 +48,7 @@ namespace ElasticsearchCRUD.ContentExists
 				elasticSearchMapping.GetIndexForType(typeof(T))
 			);
 
-			var elasticsearchUrlForHeadRequest = string.Format("{0}/{1}", _connectionString, elasticSearchMapping.GetIndexForType(typeof(T)));
-
-			var uri = new Uri(elasticsearchUrlForHeadRequest);
+			var uri = new Uri($"{_connectionString}/{elasticSearchMapping.GetIndexForType(typeof(T))}");
 			return await ExistsHeadRequest.ExistsAsync(uri);
 		}
 
@@ -66,10 +61,7 @@ namespace ElasticsearchCRUD.ContentExists
 				elasticSearchMapping.GetDocumentType(typeof(T))
 			);
 
-			var elasticsearchUrlForHeadRequest = string.Format("{0}/{1}/{2}", _connectionString,
-				elasticSearchMapping.GetIndexForType(typeof(T)), elasticSearchMapping.GetDocumentType(typeof(T)));
-
-			var uri = new Uri(elasticsearchUrlForHeadRequest);
+			var uri = new Uri($"{_connectionString}/{elasticSearchMapping.GetIndexForType(typeof(T))}/{elasticSearchMapping.GetDocumentType(typeof(T))}");
 			return await ExistsHeadRequest.ExistsAsync(uri);
 		}
 
@@ -81,19 +73,15 @@ namespace ElasticsearchCRUD.ContentExists
 				elasticSearchMapping.GetIndexForType(typeof(T))
 			);
 
-			var elasticsearchUrlForHeadRequest = string.Format("{0}/{1}/_alias/{2}", _connectionString, elasticSearchMapping.GetIndexForType(typeof(T)), alias);
-
-			var uri = new Uri(elasticsearchUrlForHeadRequest);
+			var uri = new Uri($"{_connectionString}/{elasticSearchMapping.GetIndexForType(typeof(T))}/_alias/{alias}");
 			return await ExistsHeadRequest.ExistsAsync(uri);
 		}
 
 		public async Task<ResultDetails<bool>> AliasExistsAsync(string alias)
 		{
-			_traceProvider.Trace(TraceEventType.Verbose, "ElasticsearchContextExists: AliasExistsAsync for alias:{0}", alias);
+			_traceProvider.Trace(TraceEventType.Verbose, $"ElasticsearchContextExists: AliasExistsAsync for alias:{alias}");
 
-			var elasticsearchUrlForHeadRequest = string.Format("{0}/_alias/{1}", _connectionString, alias);
-
-			var uri = new Uri(elasticsearchUrlForHeadRequest);
+			var uri = new Uri($"{_connectionString}/_alias/{alias}");
 			return await ExistsHeadRequest.ExistsAsync(uri);
 		}
 

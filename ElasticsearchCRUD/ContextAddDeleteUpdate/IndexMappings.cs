@@ -252,7 +252,7 @@ namespace ElasticsearchCRUD.ContextAddDeleteUpdate
 		{
 			var command = new MappingCommand
 			{
-				Url = string.Format("/{0}/{1}/_mappings", index, documentType),
+				Url = $"/{index}/{documentType}/_mappings",
 				RequestType = "PUT",
 				Content = propertyMapping
 			};
@@ -264,7 +264,7 @@ namespace ElasticsearchCRUD.ContextAddDeleteUpdate
 		{
 			var command = new MappingCommand
 			{
-				Url = string.Format("/{0}/_settings", index),
+				Url = $"/{index}/_settings",
 				RequestType = "PUT",
 				Content = indexJsonConfiguration
 			};
@@ -276,7 +276,7 @@ namespace ElasticsearchCRUD.ContextAddDeleteUpdate
 		{
 			var command = new MappingCommand
 			{
-				Url = string.Format("/{0}", index),
+				Url = $"/{index}",
 				RequestType = "PUT",
 				Content = indexJsonConfiguration
 			};

@@ -41,7 +41,7 @@ namespace ElasticsearchCRUD.ContextCount
 			try
 			{
 				var elasticSearchMapping = _elasticsearchSerializerConfiguration.ElasticsearchMappingResolver.GetElasticSearchMapping(typeof(T));
-				var elasticsearchUrlForEntityGet = string.Format("{0}/{1}/{2}/_count", _connectionString, elasticSearchMapping.GetIndexForType(typeof(T)), elasticSearchMapping.GetDocumentType(typeof(T)));
+				var elasticsearchUrlForEntityGet = $"{_connectionString}/{elasticSearchMapping.GetIndexForType(typeof(T))}/{elasticSearchMapping.GetDocumentType(typeof(T))}/_count";
 
 				var content = new StringContent(jsonContent);
 				var uri = new Uri(elasticsearchUrlForEntityGet);
@@ -96,31 +96,27 @@ namespace ElasticsearchCRUD.ContextCount
 		{
 			try
 			{
-				Task<ResultDetailsCount<T>> task = Task.Run(() => method.Invoke());
-				task.Wait();
-				if (task.Result.Status == HttpStatusCode.NotFound)
+				var result = method().GetAwaiter().GetResult();
+				if (result.Status == HttpStatusCode.NotFound)
 				{
-					_traceProvider.Trace(TraceEventType.Information, "SyncExecute: ExecuteResultDetails HttpStatusCode.NotFound");
+					_traceProvider.Trace(TraceEventType.Information, "ExecuteCountResultDetails: HttpStatusCode.NotFound");
 				}
 
-				return task.Result;
+				return result;
 			}
-			catch (AggregateException ae)
+			catch (ElasticsearchCrudException)
 			{
-				ae.Handle(x =>
-				{
-					_traceProvider.Trace(TraceEventType.Warning, x, "SyncExecute: ExecuteResultDetails {0}", typeof(T));
-					if (x is ElasticsearchCrudException || x is HttpRequestException)
-					{
-						throw x;
-					}
-
-					throw new ElasticsearchCrudException(x.Message);
-				});
+				throw;
 			}
-
-			_traceProvider.Trace(TraceEventType.Error, "SyncExecute: Unknown error for Exists  Type {0}", typeof(T));
-			throw new ElasticsearchCrudException(string.Format("SyncExecute: Unknown error for Exists Type {0}", typeof(T)));
+			catch (HttpRequestException)
+			{
+				throw;
+			}
+			catch (Exception ex)
+			{
+				_traceProvider.Trace(TraceEventType.Error, $"ExecuteCountResultDetails: error for Type {typeof(T)}: {ex.Message}");
+				throw new ElasticsearchCrudException(ex.Message);
+			}
 		}
 
 	}

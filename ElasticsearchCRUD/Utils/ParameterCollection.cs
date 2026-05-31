@@ -14,7 +14,7 @@ namespace ElasticsearchCRUD.Utils
 			{
 				if (_parms.ContainsKey(key))
 				{
-					throw new InvalidOperationException(string.Format("The key {0} already exists.", key));
+					throw new InvalidOperationException($"The key {key} already exists.");
 				}
 				_parms.Add(key, val);
 			}
@@ -27,9 +27,7 @@ namespace ElasticsearchCRUD.Utils
 			foreach (var kvp in _parms)
 			{
 				if (sb.Length > 0) { sb.Append("&"); }
-				sb.AppendFormat("{0}={1}",
-					Uri.EscapeDataString(kvp.Key),
-					Uri.EscapeDataString(kvp.Value));
+				sb.Append($"{Uri.EscapeDataString(kvp.Key)}={Uri.EscapeDataString(kvp.Value)}");
 			}
 			var result = sb.ToString();
 			if (result.Equals("?")) return String.Empty;

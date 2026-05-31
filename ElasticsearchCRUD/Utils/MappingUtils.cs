@@ -24,7 +24,7 @@ namespace ElasticsearchCRUD.Utils
 		{
 			if (Regex.IsMatch(index, "[\\\\/*?\",<>|\\sA-Z]"))
 			{
-				throw new ElasticsearchCrudException(string.Format("ElasticsearchCrudJsonWriter: index is not allowed in Elasticsearch: {0}", index));
+				throw new ElasticsearchCrudException($"ElasticsearchCrudJsonWriter: index is not allowed in Elasticsearch: {index}");
 			}
 		}
 	}

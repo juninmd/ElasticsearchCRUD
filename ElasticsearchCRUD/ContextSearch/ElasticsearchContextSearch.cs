@@ -53,7 +53,7 @@ namespace ElasticsearchCRUD.ContextSearch
 			var elasticSearchMapping = _elasticsearchSerializerConfiguration.ElasticsearchMappingResolver.GetElasticSearchMapping(typeof(T));
 			var index = elasticSearchMapping.GetIndexForType(typeof(T));
 			var type = elasticSearchMapping.GetDocumentType(typeof(T));
-			_traceProvider.Trace(TraceEventType.Verbose, string.Format("ElasticsearchContextSearch: Searching for document id: {0}, index {1}, type {2}", entityId, index, type));
+			_traceProvider.Trace(TraceEventType.Verbose, $"ElasticsearchContextSearch: Searching for document id: {entityId}, index {index}, type {type}");
 
 			var resultDetails = new ResultDetails<T> {Status = HttpStatusCode.InternalServerError};
 			
@@ -72,14 +72,14 @@ namespace ElasticsearchCRUD.ContextSearch
 			if (result.Status == HttpStatusCode.OK && result.PayloadResult.Hits.Total == 0)
 			{
 				resultDetails.Status = HttpStatusCode.NotFound;
-				resultDetails.Description = string.Format("No document found id: {0}, index {1}, type {2}", entityId, index, type);
-				_traceProvider.Trace(TraceEventType.Information, string.Format("ElasticsearchContextSearch: No document found id: {0},, index {1}, type {2}", entityId, index, type));
+				resultDetails.Description = $"No document found id: {entityId}, index {index}, type {type}";
+				_traceProvider.Trace(TraceEventType.Information, $"ElasticsearchContextSearch: No document found id: {entityId}, index {index}, type {type}");
 				return resultDetails;
 			}
 
 			resultDetails.Status = result.Status;
 			resultDetails.Description = result.Description;
-			_traceProvider.Trace(TraceEventType.Error, string.Format("ElasticsearchContextSearch: No document found id: {0},  index {1}, type {2}", entityId, index, type));
+			_traceProvider.Trace(TraceEventType.Error, $"ElasticsearchContextSearch: No document found id: {entityId}, index {index}, type {type}");
 			return resultDetails;
 		}
 
@@ -92,20 +92,17 @@ namespace ElasticsearchCRUD.ContextSearch
 		 //	  }
 		 //  }
 		 //}
-		private string BuildSearchById(object childId)
+		private static string BuildSearchById(object childId)
 		{
-			var buildJson = new StringBuilder();
-			buildJson.AppendLine("{");
-			buildJson.AppendLine("\"query\": {");
-			buildJson.AppendLine("\"filtered\": {");
-			buildJson.AppendLine("\"query\": {");
-			buildJson.AppendLine("\"term\": {\"_id\": " + childId + "}");
-			buildJson.AppendLine("}");
-			buildJson.AppendLine("}");
-			buildJson.AppendLine("}");
-			buildJson.AppendLine("}");
-
-			return buildJson.ToString();
+			return $@"{{
+	""query"": {{
+		""filtered"": {{
+			""query"": {{
+				""term"": {{""_id"": {childId}}}
+			}}
+		}}
+	}}
+}}";
 		}
 
 	}

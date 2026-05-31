@@ -15,8 +15,8 @@ namespace ElasticsearchCRUD.Tracing
 		{
 			var sb = new StringBuilder();
 			sb.AppendLine();
-			sb.Append(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + ": ");
-			sb.Append(string.Format(message, args));
+			sb.Append($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: ");
+			sb.Append(args.Length > 0 ? string.Format(message, args) : message);
 			WriteTrace(level, sb.ToString());
 		}
 
@@ -24,8 +24,8 @@ namespace ElasticsearchCRUD.Tracing
 		{
 			var sb = new StringBuilder();
 			sb.AppendLine();
-			sb.Append(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + ": ");
-			sb.Append(string.Format(message, args));
+			sb.Append($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: ");
+			sb.Append(args.Length > 0 ? string.Format(message, args) : message);
 			sb.AppendFormat("{2}: {0} , {1}", ex.Message, ex.StackTrace, ex.GetType());
 			WriteTrace(level, sb.ToString());
 		}

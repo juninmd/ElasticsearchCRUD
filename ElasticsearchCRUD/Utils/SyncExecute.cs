@@ -21,62 +21,50 @@ namespace ElasticsearchCRUD.Utils
 		{
 			try
 			{
-				Task<ResultDetails<T>> task = Task.Run(() => method.Invoke());
-				task.Wait();
-				if (task.Result.Status == HttpStatusCode.NotFound)
-				{
-					_traceProvider.Trace(TraceEventType.Information, "SyncExecute: Execute HttpStatusCode.NotFound");
-				}
-
-				return task.Result.PayloadResult;
+				var result = ExecuteAsync(method).GetAwaiter().GetResult();
+				return result.PayloadResult;
 			}
-			catch (AggregateException ae)
+			catch (ElasticsearchCrudException)
 			{
-				ae.Handle(x =>
-				{
-					_traceProvider.Trace(TraceEventType.Warning, x, "SyncExecute: Execute {0}", typeof(T));
-					if (x is ElasticsearchCrudException || x is HttpRequestException)
-					{
-						throw x;
-					}
-
-					throw new ElasticsearchCrudException(x.Message);
-				});
+				throw;
 			}
-
-			_traceProvider.Trace(TraceEventType.Error, "SyncExecute: Unknown error for Exists  Type {0}", typeof(T));
-			throw new ElasticsearchCrudException(string.Format("SyncExecute: Unknown error for Exists Type {0}", typeof(T)));
+			catch (HttpRequestException)
+			{
+				throw;
+			}
+			catch (Exception ex)
+			{
+				_traceProvider.Trace(TraceEventType.Error, $"SyncExecute: Execute error for Type {typeof(T)}: {ex.Message}");
+				throw new ElasticsearchCrudException(ex.Message);
+			}
 		}
 
 		public ResultDetails<T> ExecuteResultDetails<T>(Func<Task<ResultDetails<T>>> method)
 		{
 			try
 			{
-				Task<ResultDetails<T>> task = Task.Run(() => method.Invoke());
-				task.Wait();
-				if (task.Result.Status == HttpStatusCode.NotFound)
-				{
-					_traceProvider.Trace(TraceEventType.Information, "SyncExecute: ExecuteResultDetails HttpStatusCode.NotFound");
-				}
-
-				return task.Result;
+				var result = ExecuteAsync(method).GetAwaiter().GetResult();
+				return result;
 			}
-			catch (AggregateException ae)
+			catch (ElasticsearchCrudException)
 			{
-				ae.Handle(x =>
-				{
-					_traceProvider.Trace(TraceEventType.Warning, x, "SyncExecute: ExecuteResultDetails {0}", typeof(T));
-					if (x is ElasticsearchCrudException || x is HttpRequestException)
-					{
-						throw x;
-					}
-
-					throw new ElasticsearchCrudException(x.Message);
-				});
+				throw;
 			}
+			catch (HttpRequestException)
+			{
+				throw;
+			}
+			catch (Exception ex)
+			{
+				_traceProvider.Trace(TraceEventType.Error, $"SyncExecute: ExecuteResultDetails error for Type {typeof(T)}: {ex.Message}");
+				throw new ElasticsearchCrudException(ex.Message);
+			}
+		}
 
-			_traceProvider.Trace(TraceEventType.Error, "SyncExecute: Unknown error for Exists  Type {0}", typeof(T));
-			throw new ElasticsearchCrudException(string.Format("SyncExecute: Unknown error for Exists Type {0}", typeof(T)));
+		private static async Task<ResultDetails<T>> ExecuteAsync<T>(Func<Task<ResultDetails<T>>> method)
+		{
+			var result = await method();
+			return result;
 		}
 	}
 }

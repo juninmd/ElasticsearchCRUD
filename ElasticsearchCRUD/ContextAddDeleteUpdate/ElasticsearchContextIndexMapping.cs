@@ -211,7 +211,7 @@ namespace ElasticsearchCRUD.ContextAddDeleteUpdate
 				throw new ElasticsearchCrudException("CloseIndexAsync: index is required");
 			}
 
-			var elasticsearchUrlForPostRequest = string.Format("{0}/{1}/_close", _connectionString, index);
+			var elasticsearchUrlForPostRequest = $"{_connectionString}/{index}/_close";
 			var uri = new Uri(elasticsearchUrlForPostRequest);
 			return await CloseOpenIndexAsync(uri);
 		}
@@ -229,7 +229,7 @@ namespace ElasticsearchCRUD.ContextAddDeleteUpdate
 				throw new ElasticsearchCrudException("OpenIndexAsync: index is required");
 			}
 
-			var elasticsearchUrlForPostRequest = string.Format("{0}/{1}/_open", _connectionString, index);
+			var elasticsearchUrlForPostRequest = $"{_connectionString}/{index}/_open";
 			var uri = new Uri(elasticsearchUrlForPostRequest);
 			return await CloseOpenIndexAsync(uri);
 		}
@@ -247,7 +247,7 @@ namespace ElasticsearchCRUD.ContextAddDeleteUpdate
 				optimizeParameters = new OptimizeParameters();
 			}
 
-			var elasticsearchUrlForPostRequest = string.Format("{0}/{1}/_optimize{2}", _connectionString, index, optimizeParameters.GetOptimizeParameters());
+			var elasticsearchUrlForPostRequest = $"{_connectionString}/{index}/_optimize{optimizeParameters.GetOptimizeParameters()}";
 			var uri = new Uri(elasticsearchUrlForPostRequest);
 			_traceProvider.Trace(TraceEventType.Verbose, "IndexOptimizeAsync Request POST with url: {0}", uri.ToString());
 
