@@ -465,15 +465,7 @@ namespace ElasticsearchCRUD
 		/// <returns>true if one document exists for the search query</returns>
 		public bool SearchExists<T>(string searchJsonParameters, string routing = null)
 		{
-			SearchUrlParameters searchUrlParameters = null;
-			if (!string.IsNullOrEmpty(routing))
-			{
-				searchUrlParameters = new SearchUrlParameters
-				{
-					Routing = routing
-				};
-			}
-			return _searchRequest.PostSearchExists<T>(searchJsonParameters, searchUrlParameters);
+			return _searchRequest.PostSearchExists<T>(searchJsonParameters, BuildSearchUrlParameters(routing));
 		}
 		
 		/// <summary>
@@ -485,15 +477,7 @@ namespace ElasticsearchCRUD
 		/// <returns>true if one document exists for the search query</returns>
 		public bool SearchExists<T>(Search search, string routing = null)
 		{
-			SearchUrlParameters searchUrlParameters = null;
-			if (!string.IsNullOrEmpty(routing))
-			{
-				searchUrlParameters = new SearchUrlParameters
-				{
-					Routing = routing
-				};
-			}
-			return _searchRequest.PostSearchExists<T>(search.ToString(), searchUrlParameters);
+			return _searchRequest.PostSearchExists<T>(search.ToString(), BuildSearchUrlParameters(routing));
 		}
 
 		/// <summary>
@@ -505,15 +489,7 @@ namespace ElasticsearchCRUD
 		/// <returns>true if one document exists for the search query</returns>
 		public async Task<ResultDetails<bool>> SearchExistsAsync<T>(string searchJsonParameters, string routing = null)
 		{
-			SearchUrlParameters searchUrlParameters = null;
-			if (!string.IsNullOrEmpty(routing))
-			{
-				searchUrlParameters = new SearchUrlParameters
-				{
-					Routing = routing
-				};
-			}
-			return await _searchRequest.PostSearchExistsAsync<T>(searchJsonParameters, searchUrlParameters);
+			return await _searchRequest.PostSearchExistsAsync<T>(searchJsonParameters, BuildSearchUrlParameters(routing));
 		}
 
 		
@@ -526,15 +502,12 @@ namespace ElasticsearchCRUD
 		/// <returns>true if one document exists for the search query</returns>
 		public async Task<ResultDetails<bool>> SearchExistsAsync<T>(Search search, string routing = null)
 		{
-			SearchUrlParameters searchUrlParameters = null;
-			if (!string.IsNullOrEmpty(routing))
-			{
-				searchUrlParameters = new SearchUrlParameters
-				{
-					Routing = routing
-				};
-			}
-			return await _searchRequest.PostSearchExistsAsync<T>(search.ToString(), searchUrlParameters);
+			return await _searchRequest.PostSearchExistsAsync<T>(search.ToString(), BuildSearchUrlParameters(routing));
+		}
+
+		private static SearchUrlParameters BuildSearchUrlParameters(string routing)
+		{
+			return !string.IsNullOrEmpty(routing) ? new SearchUrlParameters { Routing = routing } : null;
 		}
 
 		/// <summary>

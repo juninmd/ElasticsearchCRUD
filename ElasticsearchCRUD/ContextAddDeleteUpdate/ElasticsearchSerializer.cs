@@ -123,28 +123,13 @@ namespace ElasticsearchCRUD.ContextAddDeleteUpdate
 
 		private void CreateBulkContentForParentDocument(EntityContextInfo entityInfo, ElasticsearchMapping elasticsearchMapping)
 		{
-			_elasticsearchCrudJsonWriter.JsonWriter.WriteStartObject();
-			_elasticsearchCrudJsonWriter.JsonWriter.WritePropertyName("index");
-			// Write the batch "index" operation header
-			_elasticsearchCrudJsonWriter.JsonWriter.WriteStartObject();
-			WriteValue("_index", elasticsearchMapping.GetIndexForType(entityInfo.EntityType));
-			WriteValue("_type", elasticsearchMapping.GetDocumentType(entityInfo.EntityType));
-			WriteValue("_id", entityInfo.Id);		
-			if (entityInfo.RoutingDefinition.ParentId != null && _elasticsearchSerializerConfiguration.ProcessChildDocumentsAsSeparateChildIndex)
-			{
-				// It's a document which belongs to a parent
-				WriteValue("_parent", entityInfo.RoutingDefinition.ParentId);
-			}
-			if (entityInfo.RoutingDefinition.RoutingId != null &&
-				_elasticsearchSerializerConfiguration.UserDefinedRouting)
-			{
-				// It's a document which has a specific route
-				WriteValue("_routing", entityInfo.RoutingDefinition.RoutingId);
-			}
-			_elasticsearchCrudJsonWriter.JsonWriter.WriteEndObject();
-			_elasticsearchCrudJsonWriter.JsonWriter.WriteEndObject();
-			_elasticsearchCrudJsonWriter.JsonWriter.WriteRaw("\n"); //ES requires this \n separator
-			_elasticsearchCrudJsonWriter.JsonWriter.WriteStartObject();
+			WriteBulkIndexHeader(
+				elasticsearchMapping.GetIndexForType(entityInfo.EntityType),
+				elasticsearchMapping.GetDocumentType(entityInfo.EntityType),
+				entityInfo.Id,
+				entityInfo.RoutingDefinition.ParentId,
+				entityInfo.RoutingDefinition.RoutingId
+			);
 
 			elasticsearchMapping.MapEntityValues(entityInfo, _elasticsearchCrudJsonWriter, true);
 
@@ -158,30 +143,40 @@ namespace ElasticsearchCRUD.ContextAddDeleteUpdate
 			var childMapping =
 				_elasticsearchSerializerConfiguration.ElasticsearchMappingResolver.GetElasticSearchMapping(item.EntityType);
 
-			_elasticsearchCrudJsonWriter.JsonWriter.WriteStartObject();
-			_elasticsearchCrudJsonWriter.JsonWriter.WritePropertyName("index");
-			// Write the batch "index" operation header
-			_elasticsearchCrudJsonWriter.JsonWriter.WriteStartObject();
-
-			// Always write to the same index
-			WriteValue("_index", childMapping.GetIndexForType(entityInfo.EntityType));
-			WriteValue("_type", childMapping.GetDocumentType(item.EntityType));
-			WriteValue("_id", item.Id);
-			WriteValue("_parent", item.RoutingDefinition.ParentId);
-			if (item.RoutingDefinition.RoutingId != null && _elasticsearchSerializerConfiguration.UserDefinedRouting)
-			{
-				// It's a document which has a specific route
-				WriteValue("_routing", item.RoutingDefinition.RoutingId);
-			}
-			_elasticsearchCrudJsonWriter.JsonWriter.WriteEndObject();
-			_elasticsearchCrudJsonWriter.JsonWriter.WriteEndObject();
-			_elasticsearchCrudJsonWriter.JsonWriter.WriteRaw("\n"); //ES requires this \n separator
-			_elasticsearchCrudJsonWriter.JsonWriter.WriteStartObject();
+			WriteBulkIndexHeader(
+				childMapping.GetIndexForType(entityInfo.EntityType),
+				childMapping.GetDocumentType(item.EntityType),
+				item.Id,
+				item.RoutingDefinition.ParentId,
+				_elasticsearchSerializerConfiguration.UserDefinedRouting ? item.RoutingDefinition.RoutingId : null
+			);
 
 			childMapping.MapEntityValues(item, _elasticsearchCrudJsonWriter, true);
 
 			_elasticsearchCrudJsonWriter.JsonWriter.WriteEndObject();
 			_elasticsearchCrudJsonWriter.JsonWriter.WriteRaw("\n");
+		}
+
+		private void WriteBulkIndexHeader(string index, string type, object id, object parentId, object routingId)
+		{
+			_elasticsearchCrudJsonWriter.JsonWriter.WriteStartObject();
+			_elasticsearchCrudJsonWriter.JsonWriter.WritePropertyName("index");
+			_elasticsearchCrudJsonWriter.JsonWriter.WriteStartObject();
+			WriteValue("_index", index);
+			WriteValue("_type", type);
+			WriteValue("_id", id);
+			if (parentId != null && _elasticsearchSerializerConfiguration.ProcessChildDocumentsAsSeparateChildIndex)
+			{
+				WriteValue("_parent", parentId);
+			}
+			if (routingId != null && _elasticsearchSerializerConfiguration.UserDefinedRouting)
+			{
+				WriteValue("_routing", routingId);
+			}
+			_elasticsearchCrudJsonWriter.JsonWriter.WriteEndObject();
+			_elasticsearchCrudJsonWriter.JsonWriter.WriteEndObject();
+			_elasticsearchCrudJsonWriter.JsonWriter.WriteRaw("\n");
+			_elasticsearchCrudJsonWriter.JsonWriter.WriteStartObject();
 		}
 
 		private void WriteValue(string key, object valueObj)

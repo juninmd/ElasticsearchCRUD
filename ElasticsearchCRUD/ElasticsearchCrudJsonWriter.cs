@@ -30,27 +30,25 @@ namespace ElasticsearchCRUD
 		private bool _isDisposed;
 		public void Dispose()
 		{
-			if (_isDisposed)
+			if (!_isDisposed)
 			{
 				_isDisposed = true;
 				JsonWriter.Close();
 				JsonWriter = null;
-				
 			}
 		}
 
 		public string GetJsonString()
 		{
-			var sb = new StringBuilder();
-			var jsonString = new List<string> {Stringbuilder.ToString()};
+			var jsonString = new List<string> { Stringbuilder.ToString() };
 
 			AppendDataToTrace(ElasticsearchCrudJsonWriterChildItem, jsonString);
-			
-			for (int i = jsonString.Count - 1; i == 0; i--)
+
+			var sb = new StringBuilder();
+			for (int i = jsonString.Count - 1; i >= 0; i--)
 			{
 				sb.Append(jsonString[i]);
 			}
-			
 
 			return sb.ToString();
 		}

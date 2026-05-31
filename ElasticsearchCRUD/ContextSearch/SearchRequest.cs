@@ -85,65 +85,17 @@ namespace ElasticsearchCRUD.ContextSearch
 		public async Task<ResultDetails<bool>> PostSearchExistsAsync<T>(string jsonContent, SearchUrlParameters searchUrlParameters)
 		{
 			_traceProvider.Trace(TraceEventType.Verbose, "{2}: Request for search exists: {0}, content: {1}", typeof(T), jsonContent, "Search");
-			var resultDetails = new ResultDetails<bool>
-			{
-				Status = HttpStatusCode.InternalServerError,
-				RequestBody = jsonContent
-			};
 
-			var urlParams = "";
-			if (searchUrlParameters != null)
-			{
-				urlParams = searchUrlParameters.GetUrlParameters();
-			}
+			var urlParams = searchUrlParameters?.GetUrlParameters() ?? "";
+			var elasticSearchMapping = _elasticsearchSerializerConfiguration.ElasticsearchMappingResolver.GetElasticSearchMapping(typeof(T));
+			var uri = new Uri(string.Format("{0}/{1}/{2}/_search/exists{3}", _connectionString, elasticSearchMapping.GetIndexForType(typeof(T)), elasticSearchMapping.GetDocumentType(typeof(T)), urlParams));
 
-			try
-			{
-				var elasticSearchMapping = _elasticsearchSerializerConfiguration.ElasticsearchMappingResolver.GetElasticSearchMapping(typeof(T));
-				var elasticsearchUrlForSearchExists = string.Format("{0}/{1}/{2}/_search/exists{3}", _connectionString, elasticSearchMapping.GetIndexForType(typeof(T)), elasticSearchMapping.GetDocumentType(typeof(T)), urlParams);
+			return await PostSearchInternalAsync<bool>(jsonContent, uri, ReadExistsResponse);
+		}
 
-				var content = new StringContent(jsonContent);
-				var uri = new Uri(elasticsearchUrlForSearchExists);
-				_traceProvider.Trace(TraceEventType.Verbose, "{1}: Request HTTP Post uri: {0}", uri.AbsoluteUri, "Search");
-
-				content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-				resultDetails.RequestUrl = elasticsearchUrlForSearchExists;
-				var response = await _client.PostAsync(uri, content, _cancellationTokenSource.Token).ConfigureAwait(true);
-
-				resultDetails.Status = response.StatusCode;
-				if (response.StatusCode != HttpStatusCode.OK)
-				{
-					_traceProvider.Trace(TraceEventType.Warning, "{2}: Post seach exists async response status code: {0}, {1}", response.StatusCode, response.ReasonPhrase, "Search");
-					if (response.StatusCode == HttpStatusCode.BadRequest)
-					{
-						var errorInfo = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
-						resultDetails.Description = errorInfo;
-						return resultDetails;
-					}
-
-					if (response.StatusCode == HttpStatusCode.NotFound)
-					{
-						var errorInfo = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
-						resultDetails.Description = errorInfo;
-						return resultDetails;
-					}
-				}
-
-				var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
-				_traceProvider.Trace(TraceEventType.Verbose, "{1}: Get Request response: {0}", responseString, "Search");
-				var responseObject = JObject.Parse(responseString);
-
-
-				var source = responseObject["exists"];
-
-				resultDetails.PayloadResult = (bool)source;
-				return resultDetails;
-			}
-			catch (OperationCanceledException oex)
-			{
-				_traceProvider.Trace(TraceEventType.Verbose, oex, "{1}: Get Request OperationCanceledException: {0}", oex.Message, "Search");
-				return resultDetails;
-			}
+		private static bool ReadExistsResponse(JObject responseObject)
+		{
+			return (bool)responseObject["exists"];
 		}
 
 		public bool PostSearchExists<T>(string jsonContent, SearchUrlParameters searchUrlParameters)
@@ -154,16 +106,28 @@ namespace ElasticsearchCRUD.ContextSearch
 
 		private async Task<ResultDetails<SearchResult<T>>> PostInteranlSearchAsync<T>(string jsonContent, Uri uri)
 		{
-			_traceProvider.Trace(TraceEventType.Verbose, "{2}: Request for search: {0}, content: {1}", typeof(T), jsonContent, "Search");
-			var resultDetails = new ResultDetails<SearchResult<T>>
+			return await PostSearchInternalAsync<SearchResult<T>>(jsonContent, uri, ReadSearchResponse<T>);
+		}
+
+		private static SearchResult<T> ReadSearchResponse<T>(JObject responseObject)
+		{
+			var ser = new JsonSerializer();
+			ser.Converters.Add(new GeoShapeGeometryCollectionGeometriesConverter());
+			return responseObject.ToObject<SearchResult<T>>(ser);
+		}
+
+		private async Task<ResultDetails<TResult>> PostSearchInternalAsync<TResult>(string jsonContent, Uri uri, Func<JObject, TResult> responseReader)
+		{
+			_traceProvider.Trace(TraceEventType.Verbose, "{2}: Request for search: {0}, content: {1}", typeof(TResult), jsonContent, "Search");
+			var resultDetails = new ResultDetails<TResult>
 			{
 				Status = HttpStatusCode.InternalServerError,
 				RequestBody = jsonContent
 			};
 
 			try
-			{			
-				_traceProvider.Trace(TraceEventType.Verbose, "{1}: Request HTTP GET uri: {0}", uri.AbsoluteUri, "Search");
+			{
+				_traceProvider.Trace(TraceEventType.Verbose, "{1}: Request HTTP POST uri: {0}", uri.AbsoluteUri, "Search");
 				var content = new StringContent(jsonContent);
 
 				content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
@@ -173,39 +137,27 @@ namespace ElasticsearchCRUD.ContextSearch
 				resultDetails.Status = response.StatusCode;
 				if (response.StatusCode != HttpStatusCode.OK)
 				{
-					_traceProvider.Trace(TraceEventType.Warning, "{2}: GetSearchAsync response status code: {0}, {1}", response.StatusCode, response.ReasonPhrase, "Search");
-					if (response.StatusCode == HttpStatusCode.BadRequest)
-					{
-						var errorInfo = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
-						resultDetails.Description = errorInfo;
-						if (errorInfo.Contains("RoutingMissingException"))
-						{
-							throw new ElasticsearchCrudException("HttpStatusCode.BadRequest: RoutingMissingException, adding the parent Id if this is a child item...");
-						}
+					_traceProvider.Trace(TraceEventType.Warning, "{2}: PostSearchAsync response status code: {0}, {1}", response.StatusCode, response.ReasonPhrase, "Search");
+					var errorInfo = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
+					resultDetails.Description = errorInfo;
 
-						return resultDetails;
+					if (response.StatusCode == HttpStatusCode.BadRequest && errorInfo.Contains("RoutingMissingException"))
+					{
+						throw new ElasticsearchCrudException("HttpStatusCode.BadRequest: RoutingMissingException, adding the parent Id if this is a child item...");
 					}
 
-					if (response.StatusCode == HttpStatusCode.NotFound)
-					{
-						var errorInfo = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
-						resultDetails.Description = errorInfo;
-						return resultDetails;
-					}
+					return resultDetails;
 				}
 
 				var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
-				_traceProvider.Trace(TraceEventType.Verbose, "{1}: Get Request response: {0}", responseString, "Search");
+				_traceProvider.Trace(TraceEventType.Verbose, "{1}: Post Request response: {0}", responseString, "Search");
 				var responseObject = JObject.Parse(responseString);
-				var ser = new JsonSerializer();
-				ser.Converters.Add(new GeoShapeGeometryCollectionGeometriesConverter());
-
-				resultDetails.PayloadResult = responseObject.ToObject<SearchResult<T>>(ser);
+				resultDetails.PayloadResult = responseReader(responseObject);
 				return resultDetails;
 			}
 			catch (OperationCanceledException oex)
 			{
-				_traceProvider.Trace(TraceEventType.Verbose, oex, "{1}: Get Request OperationCanceledException: {0}", oex.Message, "Search");
+				_traceProvider.Trace(TraceEventType.Verbose, oex, "{1}: Post Request OperationCanceledException: {0}", oex.Message, "Search");
 				return resultDetails;
 			}
 		}
