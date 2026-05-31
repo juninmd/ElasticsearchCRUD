@@ -21,14 +21,13 @@ namespace ElasticsearchCRUD.Utils
 		{
 			try
 			{
-				Task<ResultDetails<T>> task = Task.Run(() => method.Invoke());
-				task.Wait();
-				if (task.Result.Status == HttpStatusCode.NotFound)
+				var result = method().GetAwaiter().GetResult();
+				if (result.Status == HttpStatusCode.NotFound)
 				{
 					_traceProvider.Trace(TraceEventType.Information, "SyncExecute: Execute HttpStatusCode.NotFound");
 				}
 
-				return task.Result.PayloadResult;
+				return result.PayloadResult;
 			}
 			catch (AggregateException ae)
 			{
@@ -52,14 +51,13 @@ namespace ElasticsearchCRUD.Utils
 		{
 			try
 			{
-				Task<ResultDetails<T>> task = Task.Run(() => method.Invoke());
-				task.Wait();
-				if (task.Result.Status == HttpStatusCode.NotFound)
+				var result = method().GetAwaiter().GetResult();
+				if (result.Status == HttpStatusCode.NotFound)
 				{
 					_traceProvider.Trace(TraceEventType.Information, "SyncExecute: ExecuteResultDetails HttpStatusCode.NotFound");
 				}
 
-				return task.Result;
+				return result;
 			}
 			catch (AggregateException ae)
 			{

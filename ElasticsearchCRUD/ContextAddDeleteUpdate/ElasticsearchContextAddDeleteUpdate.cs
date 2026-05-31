@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ElasticsearchCRUD.Model;
@@ -90,7 +91,7 @@ namespace ElasticsearchCRUD.ContextAddDeleteUpdate
 
 				var responseObject = JObject.Parse(responseString);
 				_traceProvider.Trace(TraceEventType.Verbose, "{1}: response: {0}", responseString, "ElasticsearchContextAddDeleteUpdate");
-				string errors = String.Empty;
+				var errorsBuilder = new StringBuilder();
 				var items = responseObject["items"];
 				if (items != null)
 				{
@@ -101,12 +102,13 @@ namespace ElasticsearchCRUD.ContextAddDeleteUpdate
 							if (item["delete"]["status"].ToString() == "404")
 							{
 								resultDetails.Status = HttpStatusCode.NotFound;
-								errors = errors + string.Format("Delete failed for item: {0}, {1}, {2}  :", item["delete"]["_index"],
+								errorsBuilder.AppendFormat("Delete failed for item: {0}, {1}, {2}  :", item["delete"]["_index"],
 									item["delete"]["_type"], item["delete"]["_id"]);
 							}
 						}
 					}
 				}
+				string errors = errorsBuilder.ToString();
 
 				resultDetails.Description = responseString;
 				resultDetails.PayloadResult = serializedEntities;
