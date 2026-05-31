@@ -17,11 +17,19 @@ namespace ElasticsearchCRUD.ContextSearch
 {
 	public class SearchRequest
 	{
+		private static readonly JsonSerializer _jsonSerializer = CreateJsonSerializer();
 		private readonly ITraceProvider _traceProvider;
 		private readonly CancellationTokenSource _cancellationTokenSource;
 		private readonly ElasticsearchSerializerConfiguration _elasticsearchSerializerConfiguration;
 		private readonly HttpClient _client;
 		private readonly string _connectionString;
+
+		private static JsonSerializer CreateJsonSerializer()
+		{
+			var ser = new JsonSerializer();
+			ser.Converters.Add(new GeoShapeGeometryCollectionGeometriesConverter());
+			return ser;
+		}
 
 		public SearchRequest(ITraceProvider traceProvider, CancellationTokenSource cancellationTokenSource, ElasticsearchSerializerConfiguration elasticsearchSerializerConfiguration, HttpClient client, string connectionString)
 		{
@@ -197,10 +205,8 @@ namespace ElasticsearchCRUD.ContextSearch
 				var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
 				_traceProvider.Trace(TraceEventType.Verbose, "{1}: Get Request response: {0}", responseString, "Search");
 				var responseObject = JObject.Parse(responseString);
-				var ser = new JsonSerializer();
-				ser.Converters.Add(new GeoShapeGeometryCollectionGeometriesConverter());
 
-				resultDetails.PayloadResult = responseObject.ToObject<SearchResult<T>>(ser);
+				resultDetails.PayloadResult = responseObject.ToObject<SearchResult<T>>(_jsonSerializer);
 				return resultDetails;
 			}
 			catch (OperationCanceledException oex)

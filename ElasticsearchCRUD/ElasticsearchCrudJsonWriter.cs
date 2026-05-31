@@ -18,7 +18,7 @@ namespace ElasticsearchCRUD
 		public ElasticsearchCrudJsonWriter(StringBuilder stringbuilder)
 		{
 			Stringbuilder = stringbuilder;
-			JsonWriter = JsonWriter = new JsonTextWriter(new StringWriter(Stringbuilder, CultureInfo.InvariantCulture)) { CloseOutput = true };
+			JsonWriter = new JsonTextWriter(new StringWriter(Stringbuilder, CultureInfo.InvariantCulture)) { CloseOutput = true };
 		}
 
 		public ElasticsearchCrudJsonWriter ElasticsearchCrudJsonWriterChildItem { get; set; }
@@ -30,12 +30,11 @@ namespace ElasticsearchCRUD
 		private bool _isDisposed;
 		public void Dispose()
 		{
-			if (_isDisposed)
+			if (!_isDisposed)
 			{
 				_isDisposed = true;
 				JsonWriter.Close();
 				JsonWriter = null;
-				
 			}
 		}
 
@@ -46,11 +45,10 @@ namespace ElasticsearchCRUD
 
 			AppendDataToTrace(ElasticsearchCrudJsonWriterChildItem, jsonString);
 			
-			for (int i = jsonString.Count - 1; i == 0; i--)
+			for (int i = jsonString.Count - 1; i >= 0; i--)
 			{
 				sb.Append(jsonString[i]);
 			}
-			
 
 			return sb.ToString();
 		}

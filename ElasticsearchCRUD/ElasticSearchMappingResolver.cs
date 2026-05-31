@@ -13,13 +13,15 @@ namespace ElasticsearchCRUD
 
 		public ElasticsearchMapping GetElasticSearchMapping(Type type)
 		{
-			if (_mappingDefinitions.ContainsKey(type))
+			ElasticsearchMapping mapping;
+			if (_mappingDefinitions.TryGetValue(type, out mapping))
 			{
-				return _mappingDefinitions[type];
+				return mapping;
 			}
 
-			_mappingDefinitions.Add(type, new ElasticsearchMapping());
-			return _mappingDefinitions[type];
+			mapping = new ElasticsearchMapping();
+			_mappingDefinitions.Add(type, mapping);
+			return mapping;
 		}
 
 		/// <summary>

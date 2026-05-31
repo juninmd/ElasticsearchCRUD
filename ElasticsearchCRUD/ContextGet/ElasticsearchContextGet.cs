@@ -15,6 +15,7 @@ namespace ElasticsearchCRUD.ContextGet
 {
 	public class ElasticsearchContextGet
 	{
+		private static readonly JsonSerializer _jsonSerializer = new JsonSerializer();
 		private readonly ITraceProvider _traceProvider;
 		private readonly CancellationTokenSource _cancellationTokenSource;
 		private readonly ElasticsearchSerializerConfiguration _elasticsearchSerializerConfiguration;
@@ -162,9 +163,8 @@ namespace ElasticsearchCRUD.ContextGet
 				var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
 				_traceProvider.Trace(TraceEventType.Verbose, "{1}: Get Request response: {0}", responseString, "Search");
 				var responseObject = JObject.Parse(responseString);
-				var ser = new JsonSerializer();
 
-				resultDetails.PayloadResult = responseObject.ToObject<GetResult>(ser);
+				resultDetails.PayloadResult = responseObject.ToObject<GetResult>(_jsonSerializer);
 				return resultDetails;
 			}
 			catch (OperationCanceledException oex)
