@@ -29,8 +29,14 @@ namespace ElasticsearchCRUD.ContextWarmers
 
 		public bool SendWarmerCommand(Warmer warmer, string index, string type)
 		{
-			var syncExecutor = new SyncExecute(_traceProvider);
-			return syncExecutor.Execute(() => SendWarmerCommandAsync(warmer, index, type));	
+			var result = SendWarmerCommandAsync(warmer, index, type).GetAwaiter().GetResult();
+			if (result.Status == HttpStatusCode.OK)
+			{
+				return result.PayloadResult;
+			}
+			
+			_traceProvider.Trace(TraceEventType.Error, string.Format("ElasticsearchContextWarmer: Could Not Execute Warmer Create  {0}", warmer.Name));
+			throw new ElasticsearchCrudException(string.Format("ElasticsearchContextWarmer: Could Not Execute Warmer Create  {0}", warmer.Name));
 		}
 
 		public async Task<ResultDetails<bool>> SendWarmerCommandAsync(Warmer warmer, string index, string type)
@@ -72,8 +78,14 @@ namespace ElasticsearchCRUD.ContextWarmers
 
 		public bool SendWarmerDeleteCommand(string warmerName, string index)
 		{
-			var syncExecutor = new SyncExecute(_traceProvider);
-			return syncExecutor.Execute(() => SendWarmerDeleteCommandAsync(warmerName, index));
+			var result = SendWarmerDeleteCommandAsync(warmerName, index).GetAwaiter().GetResult();
+			if (result.Status == HttpStatusCode.OK)
+			{
+				return result.PayloadResult;
+			}
+			
+			_traceProvider.Trace(TraceEventType.Error, string.Format("ElasticsearchContextWarmer: Could Not Execute Warmer Delete {0}", warmerName));
+			throw new ElasticsearchCrudException(string.Format("ElasticsearchContextWarmer: Could Not Execute Warmer Delete {0}", warmerName));
 		}
 
 		public async Task<ResultDetails<bool>> SendWarmerDeleteCommandAsync(string warmerName, string index)

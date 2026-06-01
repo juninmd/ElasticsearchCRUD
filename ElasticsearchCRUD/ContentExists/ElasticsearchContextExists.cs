@@ -97,11 +97,11 @@ namespace ElasticsearchCRUD.ContentExists
 			return await ExistsHeadRequest.ExistsAsync(uri);
 		}
 
-		public bool Exists(Task<ResultDetails<bool>> method)
-		{
-			var syncExecutor = new SyncExecute(_traceProvider);
-			return syncExecutor.Execute(() => method);
-		}
+	public bool Exists(Task<ResultDetails<bool>> method)
+	{
+		var result = method.GetAwaiter().GetResult();
+		return result.Status == HttpStatusCode.OK;
+	}
 
 		public async Task<ResultDetails<bool>> ExistsAsync(Uri uri)
 		{

@@ -31,7 +31,7 @@ namespace ElasticsearchCRUD
 	public class ElasticsearchContext : IDisposable 
 	{	
 		private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-		private readonly HttpClient _client = new HttpClient();
+		private static readonly HttpClient _client = new HttpClient();
 		private readonly List<EntityContextInfo> _entityPendingChanges = new List<EntityContextInfo>();	
 		private readonly string _connectionString;
 		private readonly ElasticsearchSerializerConfiguration _elasticsearchSerializerConfiguration;
@@ -768,7 +768,8 @@ namespace ElasticsearchCRUD
 		/// <returns>true if it exists false for 404</returns>
 		public bool IndexTypeExists<T>()
 		{
-			return _elasticsearchContextExists.Exists(_elasticsearchContextExists.IndexTypeExistsAsync<T>());
+			var result = _elasticsearchContextExists.IndexTypeExistsAsync<T>().GetAwaiter().GetResult();
+			return result.Status == HttpStatusCode.OK;
 		}
 
 		/// <summary>
@@ -788,7 +789,8 @@ namespace ElasticsearchCRUD
 		/// <returns>true if the alias exists false for 404</returns>
 		public bool AliasExistsForIndex<T>(string alias)
 		{
-			return _elasticsearchContextExists.Exists(_elasticsearchContextExists.AliasExistsForIndexAsync<T>(alias));
+			var result = _elasticsearchContextExists.AliasExistsForIndexAsync<T>(alias).GetAwaiter().GetResult();
+			return result.Status == HttpStatusCode.OK;
 		}
 
 		/// <summary>
@@ -1204,13 +1206,15 @@ namespace ElasticsearchCRUD
 		}
 
 		/// <summary>
-		/// Dispose used to clean the HttpClient
+		/// Dispose used to clean resources
 		/// </summary>
 		public void Dispose()
 		{
-			if (_client != null)
+			// HttpClient is static and should not be disposed here
+			// to avoid socket exhaustion issues
+			if (_cancellationTokenSource != null)
 			{
-				_client.Dispose();
+				_cancellationTokenSource.Dispose();
 			}
 		}
 	}
