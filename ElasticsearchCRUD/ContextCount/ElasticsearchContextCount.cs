@@ -41,14 +41,14 @@ namespace ElasticsearchCRUD.ContextCount
 			try
 			{
 				var elasticSearchMapping = _elasticsearchSerializerConfiguration.ElasticsearchMappingResolver.GetElasticSearchMapping(typeof(T));
-				var elasticsearchUrlForEntityGet = string.Format("{0}/{1}/{2}/_count", _connectionString, elasticSearchMapping.GetIndexForType(typeof(T)), elasticSearchMapping.GetDocumentType(typeof(T)));
+				var elasticsearchUrlForCount = string.Format("{0}/{1}/{2}/_count", _connectionString, elasticSearchMapping.GetIndexForType(typeof(T)), elasticSearchMapping.GetDocumentType(typeof(T)));
 
 				var content = new StringContent(jsonContent);
-				var uri = new Uri(elasticsearchUrlForEntityGet);
-				_traceProvider.Trace(TraceEventType.Verbose, "{1}: Request HTTP GET uri: {0}", uri.AbsoluteUri, "ElasticsearchContextCount");
+				var uri = new Uri(elasticsearchUrlForCount);
+				_traceProvider.Trace(TraceEventType.Verbose, "{1}: Request HTTP POST uri: {0}", uri.AbsoluteUri, "ElasticsearchContextCount");
 
 				content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-				resultDetails.RequestUrl = elasticsearchUrlForEntityGet;
+				resultDetails.RequestUrl = elasticsearchUrlForCount;
 				var response = await _client.PostAsync(uri, content, _cancellationTokenSource.Token).ConfigureAwait(true);
 
 				resultDetails.Status = response.StatusCode;
@@ -89,38 +89,8 @@ namespace ElasticsearchCRUD.ContextCount
 
 		public ResultDetailsCount<long> PostCount<T>(string jsonContent)
 		{
-			return ExecuteCountResultDetails(() => PostCountAsync<T>(jsonContent));		
-		}
-
-		private ResultDetailsCount<T> ExecuteCountResultDetails<T>(Func<Task<ResultDetailsCount<T>>> method)
-		{
-			try
-			{
-				Task<ResultDetailsCount<T>> task = Task.Run(() => method.Invoke());
-				task.Wait();
-				if (task.Result.Status == HttpStatusCode.NotFound)
-				{
-					_traceProvider.Trace(TraceEventType.Information, "SyncExecute: ExecuteResultDetails HttpStatusCode.NotFound");
-				}
-
-				return task.Result;
-			}
-			catch (AggregateException ae)
-			{
-				ae.Handle(x =>
-				{
-					_traceProvider.Trace(TraceEventType.Warning, x, "SyncExecute: ExecuteResultDetails {0}", typeof(T));
-					if (x is ElasticsearchCrudException || x is HttpRequestException)
-					{
-						throw x;
-					}
-
-					throw new ElasticsearchCrudException(x.Message);
-				});
-			}
-
-			_traceProvider.Trace(TraceEventType.Error, "SyncExecute: Unknown error for Exists  Type {0}", typeof(T));
-			throw new ElasticsearchCrudException(string.Format("SyncExecute: Unknown error for Exists Type {0}", typeof(T)));
+			var syncExecutor = new SyncExecute(_traceProvider);
+			return syncExecutor.ExecuteResultDetailsCount(() => PostCountAsync<T>(jsonContent));		
 		}
 
 	}

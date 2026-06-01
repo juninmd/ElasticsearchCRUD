@@ -47,6 +47,36 @@ namespace ElasticsearchCRUD.Utils
 			throw new ElasticsearchCrudException(string.Format("SyncExecute: Unknown error for Exists Type {0}", typeof(T)));
 		}
 
+		public ResultDetailsCount<T> ExecuteResultDetailsCount<T>(Func<Task<ResultDetailsCount<T>>> method)
+		{
+			try
+			{
+				var result = method().GetAwaiter().GetResult();
+				if (result.Status == HttpStatusCode.NotFound)
+				{
+					_traceProvider.Trace(TraceEventType.Information, "SyncExecute: ExecuteResultDetailsCount HttpStatusCode.NotFound");
+				}
+
+				return result;
+			}
+			catch (AggregateException ae)
+			{
+				ae.Handle(x =>
+				{
+					_traceProvider.Trace(TraceEventType.Warning, x, "SyncExecute: ExecuteResultDetailsCount {0}", typeof(T));
+					if (x is ElasticsearchCrudException || x is HttpRequestException)
+					{
+						throw x;
+					}
+
+					throw new ElasticsearchCrudException(x.Message);
+				});
+			}
+
+			_traceProvider.Trace(TraceEventType.Error, "SyncExecute: Unknown error for ExecuteResultDetailsCount Type {0}", typeof(T));
+			throw new ElasticsearchCrudException(string.Format("SyncExecute: Unknown error for ExecuteResultDetailsCount Type {0}", typeof(T)));
+		}
+
 		public ResultDetails<T> ExecuteResultDetails<T>(Func<Task<ResultDetails<T>>> method)
 		{
 			try

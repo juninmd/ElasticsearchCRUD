@@ -59,7 +59,7 @@ namespace ElasticsearchCRUD.ContextSearch
 
 			var uri = new Uri(elasticsearchUrlForEntityGet);
 
-			var result = await PostInteranlSearchAsync<T>(jsonContent, uri);
+			var result = await PostInternalSearchAsync<T>(jsonContent, uri);
 			return result;
 		}
 
@@ -80,7 +80,7 @@ namespace ElasticsearchCRUD.ContextSearch
 			elasticsearchUrlForEntityGet = elasticsearchUrlForEntityGet + "?" + scanAndScrollConfiguration.GetScrollScanUrlForSetup();
 
 			var uri = new Uri(elasticsearchUrlForEntityGet);
-			var result = await PostInteranlSearchAsync<T>(jsonContent, uri);
+			var result = await PostInternalSearchAsync<T>(jsonContent, uri);
 			return result;
 		}
 
@@ -160,7 +160,7 @@ namespace ElasticsearchCRUD.ContextSearch
 			return syncExecutor.ExecuteResultDetails(() => PostSearchExistsAsync<T>(jsonContent, searchUrlParameters)).PayloadResult;
 		}
 
-		private async Task<ResultDetails<SearchResult<T>>> PostInteranlSearchAsync<T>(string jsonContent, Uri uri)
+		private async Task<ResultDetails<SearchResult<T>>> PostInternalSearchAsync<T>(string jsonContent, Uri uri)
 		{
 			_traceProvider.Trace(TraceEventType.Verbose, "{2}: Request for search: {0}, content: {1}", typeof(T), jsonContent, "Search");
 			var resultDetails = new ResultDetails<SearchResult<T>>

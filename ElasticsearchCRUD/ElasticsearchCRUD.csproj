@@ -413,6 +413,7 @@
     <Compile Include="ElasticsearchMappingResolver.cs" />
     <Compile Include="ContextAddDeleteUpdate\ElasticsearchSerializer.cs" />
     <Compile Include="ElasticsearchMapping.cs" />
+    <Compile Include="ElasticsearchMapping.Serialization.cs" />
     <Compile Include="Model\EntityContextInfo.cs" />
     <Compile Include="IElasticsearchMappingResolver.cs" />
     <Compile Include="Tracing\ITraceProvider.cs" />
