@@ -1,125 +1,29 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{0871F436-A4A1-445C-BE17-98EBCCAF7973}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ElasticsearchCRUD.Integration.Test</RootNamespace>
+    <TargetFramework>net45</TargetFramework>
     <AssemblyName>ElasticsearchCRUD.Integration.Test</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
+    <RootNamespace>ElasticsearchCRUD.Integration.Test</RootNamespace>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Newtonsoft.Json.6.0.5\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.framework">
-      <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Core" />
+    <PackageReference Include="Newtonsoft.Json" Version="6.0.5" />
+    <PackageReference Include="NUnit" Version="2.6.3" />
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Net.Http.WebRequest" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AggregationTests\FilterBucketAggregationAndMissingBucketAggregationTests.cs" />
-    <Compile Include="AggregationTests\GlobalBucketAggregationTests.cs" />
-    <Compile Include="AggregationTests\HistogramBucketAggregationTests.cs" />
-    <Compile Include="AggregationTests\GeohashGridBucketAggregationTests.cs" />
-    <Compile Include="AggregationTests\ScriptedMetricAggregationTests.cs" />
-    <Compile Include="AggregationTests\SignificantTermsBucketAggregationTests.cs" />
-    <Compile Include="AggregationTests\RangesAggregationTests.cs" />
-    <Compile Include="AggregationTests\TopHitsAggregationTests.cs" />
-    <Compile Include="AggregationTests\TermsAggregationTests.cs" />
-    <Compile Include="AliasElasticsearchCrudTests.cs" />
-    <Compile Include="AnalysisSettingsTests.cs" />
-    <Compile Include="AnalysisTests.cs" />
-    <Compile Include="GlobalApiTestsSearchCountTests.cs" />
-    <Compile Include="OneToN\ComplexRelationsTests.cs" />
-    <Compile Include="CoreTypeMappingTests.cs" />
-    <Compile Include="CreateIndexTest.cs" />
-    <Compile Include="DefaultElasticsearchCRUDTests.cs" />
-    <Compile Include="OneToN\DocumentsWithChildDocumentsTestNotAllowed.cs" />
-    <Compile Include="ExistsTests.cs" />
-    <Compile Include="GeoPointAndGeoShapeTests.cs" />
-    <Compile Include="MappingChildParentRoutingTests.cs" />
-    <Compile Include="MappingTests.cs" />
-    <Compile Include="MappingTypeTests.cs" />
-    <Compile Include="OneToN\NestedArraysTestsWithFiltersAndQueriesAndAggregations.cs" />
-    <Compile Include="OneToN\OneToNEntitiesSaveWithChildDocumentsTestWithRouting.cs" />
-    <Compile Include="OneToN\OneToNEntitiesSaveWithChildDocumentsTest.cs" />
-    <Compile Include="OneToN\OneToNNestedElasticsearchCrudTests.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SearchCreateScanAndScrollTests.cs" />
-    <Compile Include="SearchHighlightAndRescoreTests.cs" />
-    <Compile Include="SearchTests\SearchQueryFilterFilteredStructureTests.cs" />
-    <Compile Include="SearchTests\SearchQueryFilterTests.cs" />
-    <Compile Include="AggregationTests\SearchAggStructureTests.cs" />
-    <Compile Include="SearchTests\SearchQueryQueryStringQueryTest.cs" />
-    <Compile Include="SearchTests\SearchQueryQueryFunctionScoreTest.cs" />
-    <Compile Include="SearchTests\SearchQueryQueryFuzzyTests.cs" />
-    <Compile Include="SearchTests\SearchQueryQueryCommonTermsTests.cs" />
-    <Compile Include="SearchTests\SearchQueryQueryMatchTests.cs" />
-    <Compile Include="SearchTests\SearchQueryQueryTopChildrenAndChidrenBucketAggregationTests.cs" />
-    <Compile Include="SearchTests\SearchQueryFilterTestsMoreLikeThis.cs" />
-    <Compile Include="SearchTests\SearchQueryFilterTestsOneToNParentChild.cs" />
-    <Compile Include="SearchTests\SearchQueryQuerySpanTests.cs" />
-    <Compile Include="SearchTests\SearchQueryQueryTests.cs" />
-    <Compile Include="AggregationTests\SearchAggTest.cs" />
-    <Compile Include="SearchTests\SearchTest.cs" />
-    <Compile Include="AggregationTests\SetupSearchAgg.cs" />
-    <Compile Include="SearchTests\SetupSearch.cs" />
-    <Compile Include="OneToN\SkillParentCollection.cs" />
-    <Compile Include="OneToN\SkillTestEntityElasticSearchMapping.cs" />
-    <Compile Include="OneToN\SpecialMappingElasticsearchCRUDTests.cs" />
-    <Compile Include="TestEntities.cs" />
-    <Compile Include="WarmerTests.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ElasticsearchCRUD\ElasticsearchCRUD.csproj">
-      <Project>{d40fd7b8-3fbc-4f06-88ed-704e60b1a3af}</Project>
-      <Name>ElasticsearchCRUD</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\ElasticsearchCRUD\ElasticsearchCRUD.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Readme.txt" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

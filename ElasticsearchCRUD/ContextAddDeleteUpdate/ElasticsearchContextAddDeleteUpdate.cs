@@ -137,15 +137,13 @@ namespace ElasticsearchCRUD.ContextAddDeleteUpdate
 		public async Task<ResultDetails<bool>> DeleteIndexAsync<T>(bool allowDeleteForIndex)
 		{
 			var elasticSearchMapping = _elasticsearchSerializerConfiguration.ElasticsearchMappingResolver.GetElasticSearchMapping(typeof(T));
-			var elasticsearchUrlForIndexDelete = string.Format("{0}/{1}", _connectionString, elasticSearchMapping.GetIndexForType(typeof(T)));
-			var uri = new Uri(elasticsearchUrlForIndexDelete);
+			var uri = new Uri($"{_connectionString}/{elasticSearchMapping.GetIndexForType(typeof(T))}");
 			return await DeleteInternalAsync(allowDeleteForIndex, uri);
 		}
 
 		public async Task<ResultDetails<bool>> DeleteIndexAsync(bool allowDeleteForIndex, string index)
 		{
-			var elasticsearchUrlForIndexDelete = string.Format("{0}/{1}", _connectionString, index);
-			var uri = new Uri(elasticsearchUrlForIndexDelete);
+			var uri = new Uri($"{_connectionString}/{index}");
 			return await DeleteInternalAsync(allowDeleteForIndex, uri);
 		}
 
@@ -153,8 +151,7 @@ namespace ElasticsearchCRUD.ContextAddDeleteUpdate
 		public async Task<ResultDetails<bool>> DeleteIndexTypeAsync<T>(bool allowDeleteForIndex)
 		{
 			var elasticSearchMapping = _elasticsearchSerializerConfiguration.ElasticsearchMappingResolver.GetElasticSearchMapping(typeof(T));
-			var elasticsearchUrlForIndexDelete = string.Format("{0}/{1}/{2}", _connectionString, elasticSearchMapping.GetIndexForType(typeof(T)), elasticSearchMapping.GetDocumentType(typeof(T)));
-			var uri = new Uri(elasticsearchUrlForIndexDelete);
+			var uri = new Uri($"{_connectionString}/{elasticSearchMapping.GetIndexForType(typeof(T))}/{elasticSearchMapping.GetDocumentType(typeof(T))}");
 			return await DeleteInternalAsync(allowDeleteForIndex, uri);
 		}
 

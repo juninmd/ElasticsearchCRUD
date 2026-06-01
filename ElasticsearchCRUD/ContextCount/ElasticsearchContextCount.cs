@@ -41,7 +41,7 @@ namespace ElasticsearchCRUD.ContextCount
 			try
 			{
 				var elasticSearchMapping = _elasticsearchSerializerConfiguration.ElasticsearchMappingResolver.GetElasticSearchMapping(typeof(T));
-				var elasticsearchUrlForEntityGet = string.Format("{0}/{1}/{2}/_count", _connectionString, elasticSearchMapping.GetIndexForType(typeof(T)), elasticSearchMapping.GetDocumentType(typeof(T)));
+				var elasticsearchUrlForEntityGet = $"{_connectionString}/{elasticSearchMapping.GetIndexForType(typeof(T))}/{elasticSearchMapping.GetDocumentType(typeof(T))}/_count";
 
 				var content = new StringContent(jsonContent);
 				var uri = new Uri(elasticsearchUrlForEntityGet);
@@ -107,10 +107,10 @@ namespace ElasticsearchCRUD.ContextCount
 			}
 			catch (AggregateException ae)
 			{
-				ae.Handle(x =>
+					ae.Handle(x =>
 				{
 					_traceProvider.Trace(TraceEventType.Warning, x, "SyncExecute: ExecuteResultDetails {0}", typeof(T));
-					if (x is ElasticsearchCrudException || x is HttpRequestException)
+					if (x is ElasticsearchCrudException or HttpRequestException)
 					{
 						throw x;
 					}
@@ -120,7 +120,7 @@ namespace ElasticsearchCRUD.ContextCount
 			}
 
 			_traceProvider.Trace(TraceEventType.Error, "SyncExecute: Unknown error for Exists  Type {0}", typeof(T));
-			throw new ElasticsearchCrudException(string.Format("SyncExecute: Unknown error for Exists Type {0}", typeof(T)));
+			throw new ElasticsearchCrudException($"SyncExecute: Unknown error for Exists Type {typeof(T)}");
 		}
 
 	}

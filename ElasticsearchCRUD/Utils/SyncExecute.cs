@@ -12,10 +12,7 @@ namespace ElasticsearchCRUD.Utils
 	{
 		private readonly ITraceProvider _traceProvider;
 
-		public SyncExecute(ITraceProvider traceProvider)
-		{
-			_traceProvider = traceProvider;
-		}
+		public SyncExecute(ITraceProvider traceProvider) => _traceProvider = traceProvider;
 
 		public T Execute<T>(Func<Task<ResultDetails<T>>> method)
 		{
@@ -34,7 +31,7 @@ namespace ElasticsearchCRUD.Utils
 				ae.Handle(x =>
 				{
 					_traceProvider.Trace(TraceEventType.Warning, x, "SyncExecute: Execute {0}", typeof(T));
-					if (x is ElasticsearchCrudException || x is HttpRequestException)
+					if (x is ElasticsearchCrudException or HttpRequestException)
 					{
 						throw x;
 					}
@@ -44,7 +41,7 @@ namespace ElasticsearchCRUD.Utils
 			}
 
 			_traceProvider.Trace(TraceEventType.Error, "SyncExecute: Unknown error for Exists  Type {0}", typeof(T));
-			throw new ElasticsearchCrudException(string.Format("SyncExecute: Unknown error for Exists Type {0}", typeof(T)));
+			throw new ElasticsearchCrudException($"SyncExecute: Unknown error for Exists Type {typeof(T)}");
 		}
 
 		public ResultDetails<T> ExecuteResultDetails<T>(Func<Task<ResultDetails<T>>> method)
@@ -64,7 +61,7 @@ namespace ElasticsearchCRUD.Utils
 				ae.Handle(x =>
 				{
 					_traceProvider.Trace(TraceEventType.Warning, x, "SyncExecute: ExecuteResultDetails {0}", typeof(T));
-					if (x is ElasticsearchCrudException || x is HttpRequestException)
+					if (x is ElasticsearchCrudException or HttpRequestException)
 					{
 						throw x;
 					}
@@ -74,7 +71,7 @@ namespace ElasticsearchCRUD.Utils
 			}
 
 			_traceProvider.Trace(TraceEventType.Error, "SyncExecute: Unknown error for Exists  Type {0}", typeof(T));
-			throw new ElasticsearchCrudException(string.Format("SyncExecute: Unknown error for Exists Type {0}", typeof(T)));
+			throw new ElasticsearchCrudException($"SyncExecute: Unknown error for Exists Type {typeof(T)}");
 		}
 	}
 }

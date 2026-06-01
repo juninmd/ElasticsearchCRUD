@@ -2,10 +2,5 @@
 
 namespace ElasticsearchCRUD
 {
-	public class ElasticsearchCrudException : Exception
-	{
-		public ElasticsearchCrudException(string message) : base(message)
-		{
-		}
-	}
+	public class ElasticsearchCrudException(string message) : Exception(message);
 }

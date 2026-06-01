@@ -40,7 +40,7 @@ namespace ElasticsearchCRUD.ContextDeleteByQuery
 			try
 			{
 				var elasticSearchMapping = _elasticsearchSerializerConfiguration.ElasticsearchMappingResolver.GetElasticSearchMapping(typeof(T));
-				var elasticsearchUrlForEntityGet = string.Format("{0}/{1}/{2}/_query", _connectionString, elasticSearchMapping.GetIndexForType(typeof(T)), elasticSearchMapping.GetDocumentType(typeof(T)));	
+				var elasticsearchUrlForEntityGet = $"{_connectionString}/{elasticSearchMapping.GetIndexForType(typeof(T))}/{elasticSearchMapping.GetDocumentType(typeof(T))}/_query";	
 				
 				var content = new StringContent(jsonContent);
 				var uri = new Uri(elasticsearchUrlForEntityGet);

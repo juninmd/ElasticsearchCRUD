@@ -50,11 +50,11 @@ namespace ElasticsearchCRUD.ContextSearch
 				urlParams = searchUrlParameters.GetUrlParameters();
 			}
 			var elasticSearchMapping = _elasticsearchSerializerConfiguration.ElasticsearchMappingResolver.GetElasticSearchMapping(typeof(T));
-			var elasticsearchUrlForEntityGet = string.Format("{0}/{1}/{2}/_search{3}", _connectionString, elasticSearchMapping.GetIndexForType(typeof(T)), elasticSearchMapping.GetDocumentType(typeof(T)), urlParams);
+			var elasticsearchUrlForEntityGet = $"{_connectionString}/{elasticSearchMapping.GetIndexForType(typeof(T))}/{elasticSearchMapping.GetDocumentType(typeof(T))}/_search{urlParams}";
 
 			if (!string.IsNullOrEmpty(scrollId))
 			{
-				elasticsearchUrlForEntityGet = string.Format("{0}/{1}{2}", _connectionString ,scanAndScrollConfiguration.GetScrollScanUrlForRunning(),scrollId);
+				elasticsearchUrlForEntityGet = $"{_connectionString}{scanAndScrollConfiguration.GetScrollScanUrlForRunning()}{scrollId}";
 			}
 
 			var uri = new Uri(elasticsearchUrlForEntityGet);
@@ -74,8 +74,7 @@ namespace ElasticsearchCRUD.ContextSearch
 			_traceProvider.Trace(TraceEventType.Verbose, "{2}: Request for search create scan ans scroll: {0}, content: {1}", typeof (T), jsonContent, "Search");
 
 			var elasticSearchMapping = _elasticsearchSerializerConfiguration.ElasticsearchMappingResolver.GetElasticSearchMapping(typeof (T));
-			var elasticsearchUrlForEntityGet = string.Format("{0}/{1}/{2}/_search", _connectionString,
-				elasticSearchMapping.GetIndexForType(typeof (T)), elasticSearchMapping.GetDocumentType(typeof (T)));
+			var elasticsearchUrlForEntityGet = $"{_connectionString}/{elasticSearchMapping.GetIndexForType(typeof(T))}/{elasticSearchMapping.GetDocumentType(typeof(T))}/_search";
 
 			elasticsearchUrlForEntityGet = elasticsearchUrlForEntityGet + "?" + scanAndScrollConfiguration.GetScrollScanUrlForSetup();
 
@@ -108,7 +107,7 @@ namespace ElasticsearchCRUD.ContextSearch
 			try
 			{
 				var elasticSearchMapping = _elasticsearchSerializerConfiguration.ElasticsearchMappingResolver.GetElasticSearchMapping(typeof(T));
-				var elasticsearchUrlForSearchExists = string.Format("{0}/{1}/{2}/_search/exists{3}", _connectionString, elasticSearchMapping.GetIndexForType(typeof(T)), elasticSearchMapping.GetDocumentType(typeof(T)), urlParams);
+				var elasticsearchUrlForSearchExists = $"{_connectionString}/{elasticSearchMapping.GetIndexForType(typeof(T))}/{elasticSearchMapping.GetDocumentType(typeof(T))}/_search/exists{urlParams}";
 
 				var content = new StringContent(jsonContent);
 				var uri = new Uri(elasticsearchUrlForSearchExists);

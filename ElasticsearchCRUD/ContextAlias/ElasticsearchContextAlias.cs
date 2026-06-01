@@ -35,11 +35,10 @@ namespace ElasticsearchCRUD.ContextAlias
 
 		public async Task<ResultDetails<bool>> SendAliasCommandAsync(string contentJson)
 		{
-			_traceProvider.Trace(TraceEventType.Verbose, string.Format("ElasticsearchContextAlias: Creating Alias {0}", contentJson));
+			_traceProvider.Trace(TraceEventType.Verbose, $"ElasticsearchContextAlias: Creating Alias {contentJson}");
 
 			var resultDetails = new ResultDetails<bool> { Status = HttpStatusCode.InternalServerError };
-			var elasticsearchUrlForClearCache = string.Format("{0}/_aliases", _connectionString);
-			var uri = new Uri(elasticsearchUrlForClearCache);
+			var uri = new Uri($"{_connectionString}/_aliases");
 			_traceProvider.Trace(TraceEventType.Verbose, "{1}: Request HTTP POST uri: {0}", uri.AbsoluteUri, "ElasticsearchContextAlias");
 
 			var content = new StringContent(contentJson);
@@ -51,8 +50,8 @@ namespace ElasticsearchCRUD.ContextAlias
 				return resultDetails;
 			}
 
-			_traceProvider.Trace(TraceEventType.Error, string.Format("ElasticsearchContextAlias: Cound Not Execute Alias {0}", contentJson));
-			throw new ElasticsearchCrudException(string.Format("ElasticsearchContextAlias: Cound Not Execute Alias  {0}", contentJson));
+			_traceProvider.Trace(TraceEventType.Error, $"ElasticsearchContextAlias: Cound Not Execute Alias {contentJson}");
+			throw new ElasticsearchCrudException($"ElasticsearchContextAlias: Cound Not Execute Alias  {contentJson}");
 		}
 	}
 }

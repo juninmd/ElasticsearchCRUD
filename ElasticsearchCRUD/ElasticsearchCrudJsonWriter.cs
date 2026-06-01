@@ -21,31 +21,29 @@ namespace ElasticsearchCRUD
 			JsonWriter = new JsonTextWriter(new StringWriter(Stringbuilder, CultureInfo.InvariantCulture)) { CloseOutput = true };
 		}
 
-		public ElasticsearchCrudJsonWriter ElasticsearchCrudJsonWriterChildItem { get; set; }
+		public ElasticsearchCrudJsonWriter? ElasticsearchCrudJsonWriterChildItem { get; set; }
 
-		public StringBuilder Stringbuilder { get; private set; }
+		public StringBuilder Stringbuilder { get; }
 
 		public JsonWriter JsonWriter { get; private set; }
 
 		private bool _isDisposed;
 		public void Dispose()
 		{
-			if (!_isDisposed)
-			{
-				_isDisposed = true;
-				JsonWriter.Close();
-				JsonWriter = null;
-			}
+			if (_isDisposed) return;
+			_isDisposed = true;
+			JsonWriter.Close();
+			JsonWriter = null;
 		}
 
 		public string GetJsonString()
 		{
 			var sb = new StringBuilder();
-			var jsonString = new List<string> {Stringbuilder.ToString()};
+			var jsonString = new List<string> { Stringbuilder.ToString() };
 
 			AppendDataToTrace(ElasticsearchCrudJsonWriterChildItem, jsonString);
-			
-			for (int i = jsonString.Count - 1; i >= 0; i--)
+
+			for (var i = jsonString.Count - 1; i >= 0; i--)
 			{
 				sb.Append(jsonString[i]);
 			}
@@ -55,13 +53,10 @@ namespace ElasticsearchCRUD
 
 		public void AppendDataToTrace(ElasticsearchCrudJsonWriter elasticsearchCrudJsonWriterChildItem, List<string> jsonString)
 		{
-			if (elasticsearchCrudJsonWriterChildItem != null)
+			while (elasticsearchCrudJsonWriterChildItem != null)
 			{
 				jsonString.Add(elasticsearchCrudJsonWriterChildItem.Stringbuilder.ToString());
-				if (elasticsearchCrudJsonWriterChildItem.ElasticsearchCrudJsonWriterChildItem != null)
-				{
-					AppendDataToTrace(elasticsearchCrudJsonWriterChildItem.ElasticsearchCrudJsonWriterChildItem, jsonString);
-				}
+				elasticsearchCrudJsonWriterChildItem = elasticsearchCrudJsonWriterChildItem.ElasticsearchCrudJsonWriterChildItem;
 			}
 		}
 	}
