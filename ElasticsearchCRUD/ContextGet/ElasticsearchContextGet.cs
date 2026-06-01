@@ -31,24 +31,23 @@ namespace ElasticsearchCRUD.ContextGet
 			_connectionString = connectionString;
 		}
 
-		public T GetDocument<T>(object entityId, RoutingDefinition routingDefinition)
+	public T GetDocument<T>(object entityId, RoutingDefinition routingDefinition)
+	{
+		var result = GetDocumentAsync<T>(entityId, routingDefinition).GetAwaiter().GetResult();
+
+		if (result.Status == HttpStatusCode.NotFound)
 		{
-			var syncExecutor = new SyncExecute(_traceProvider);
-			var result = syncExecutor.ExecuteResultDetails(() => GetDocumentAsync<T>(entityId, routingDefinition));
-
-			if (result.Status == HttpStatusCode.NotFound)
-			{
-				_traceProvider.Trace(TraceEventType.Warning, "ElasticSearchContextGet: HttpStatusCode.NotFound");
-				throw new ElasticsearchCrudException("ElasticSearchContextGet: HttpStatusCode.NotFound");
-			}
-			if (result.Status == HttpStatusCode.BadRequest)
-			{
-				_traceProvider.Trace(TraceEventType.Warning, "ElasticSearchContextGet: HttpStatusCode.BadRequest");
-				throw new ElasticsearchCrudException("ElasticSearchContextGet: HttpStatusCode.BadRequest" + result.Description);
-			}
-
-			return result.PayloadResult;
+			_traceProvider.Trace(TraceEventType.Warning, "ElasticSearchContextGet: HttpStatusCode.NotFound");
+			throw new ElasticsearchCrudException("ElasticSearchContextGet: HttpStatusCode.NotFound");
 		}
+		if (result.Status == HttpStatusCode.BadRequest)
+		{
+			_traceProvider.Trace(TraceEventType.Warning, "ElasticSearchContextGet: HttpStatusCode.BadRequest");
+			throw new ElasticsearchCrudException("ElasticSearchContextGet: HttpStatusCode.BadRequest" + result.Description);
+		}
+
+		return result.PayloadResult;
+	}
 
 		public async Task<ResultDetails<T>> GetDocumentAsync<T>(object entityId, RoutingDefinition routingDefinition)
 		{
@@ -104,8 +103,7 @@ namespace ElasticsearchCRUD.ContextGet
 
 		public GetResult Get(Uri uri)
 		{
-			var syncExecutor = new SyncExecute(_traceProvider);
-			var result = syncExecutor.ExecuteResultDetails(() => GetAsync(uri));
+			var result = GetAsync(uri).GetAwaiter().GetResult();
 
 			if (result.Status == HttpStatusCode.NotFound)
 			{

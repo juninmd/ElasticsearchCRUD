@@ -35,12 +35,12 @@ namespace ElasticsearchCRUD.ContextAddDeleteUpdate
 			_elasticsearchUrlBatch = new Uri(new Uri(connectionString), BatchOperationPath);
 		}
 
-		public ResultDetails<string> SaveChanges(List<EntityContextInfo> entityPendingChanges, bool saveChangesAndInitMappingsForChildDocuments)
-		{
-			_saveChangesAndInitMappings = saveChangesAndInitMappingsForChildDocuments;
-			var syncExecutor = new SyncExecute(_traceProvider);
-			return syncExecutor.ExecuteResultDetails(() => SaveChangesAsync(entityPendingChanges));
-		}
+	public ResultDetails<string> SaveChanges(List<EntityContextInfo> entityPendingChanges, bool saveChangesAndInitMappingsForChildDocuments)
+	{
+		_saveChangesAndInitMappings = saveChangesAndInitMappingsForChildDocuments;
+		// Properly offload async work to background thread to avoid blocking
+		return SaveChangesAsync(entityPendingChanges).GetAwaiter().GetResult();
+	}
 
 		public async Task<ResultDetails<string>> SaveChangesAsync(List<EntityContextInfo> entityPendingChanges)
 		{

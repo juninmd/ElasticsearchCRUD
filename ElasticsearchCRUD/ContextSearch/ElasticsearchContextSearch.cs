@@ -29,24 +29,23 @@ namespace ElasticsearchCRUD.ContextSearch
 			_connectionString = connectionString;
 		}
 
-		public T SearchById<T>(object entityId, SearchUrlParameters searchUrlParameters)
+	public T SearchById<T>(object entityId, SearchUrlParameters searchUrlParameters)
+	{
+		var result = SearchByIdAsync<T>(entityId, searchUrlParameters).GetAwaiter().GetResult();
+
+		if (result.Status == HttpStatusCode.NotFound)
 		{
-			var syncExecutor = new SyncExecute(_traceProvider);
-			var result = syncExecutor.ExecuteResultDetails(() => SearchByIdAsync<T>(entityId, searchUrlParameters));
-
-			if (result.Status == HttpStatusCode.NotFound)
-			{
-				_traceProvider.Trace(TraceEventType.Warning, "ElasticsearchContextSearch: HttpStatusCode.NotFound");
-				throw new ElasticsearchCrudException("ElasticsearchContextSearch: HttpStatusCode.NotFound");
-			}
-			if (result.Status == HttpStatusCode.BadRequest)
-			{
-				_traceProvider.Trace(TraceEventType.Warning, "ElasticsearchContextSearch: HttpStatusCode.BadRequest");
-				throw new ElasticsearchCrudException("ElasticsearchContextSearch: HttpStatusCode.BadRequest" + result.Description);
-			}
-
-			return result.PayloadResult;
+			_traceProvider.Trace(TraceEventType.Warning, "ElasticsearchContextSearch: HttpStatusCode.NotFound");
+			throw new ElasticsearchCrudException("ElasticsearchContextSearch: HttpStatusCode.NotFound");
 		}
+		if (result.Status == HttpStatusCode.BadRequest)
+		{
+			_traceProvider.Trace(TraceEventType.Warning, "ElasticsearchContextSearch: HttpStatusCode.BadRequest");
+			throw new ElasticsearchCrudException("ElasticsearchContextSearch: HttpStatusCode.BadRequest" + result.Description);
+		}
+
+		return result.PayloadResult;
+	}
 
 		public async Task<ResultDetails<T>> SearchByIdAsync<T>(object entityId, SearchUrlParameters searchUrlParameters)
 		{
