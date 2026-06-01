@@ -40,10 +40,10 @@ namespace ElasticsearchCRUD.ContextDeleteByQuery
 			try
 			{
 				var elasticSearchMapping = _elasticsearchSerializerConfiguration.ElasticsearchMappingResolver.GetElasticSearchMapping(typeof(T));
-				var elasticsearchUrlForEntityGet = string.Format("{0}/{1}/{2}/_query", _connectionString, elasticSearchMapping.GetIndexForType(typeof(T)), elasticSearchMapping.GetDocumentType(typeof(T)));	
+				var elasticsearchUrlForDeleteByQuery = string.Format("{0}/{1}/{2}/_query", _connectionString, elasticSearchMapping.GetIndexForType(typeof(T)), elasticSearchMapping.GetDocumentType(typeof(T)));	
 				
 				var content = new StringContent(jsonContent);
-				var uri = new Uri(elasticsearchUrlForEntityGet);
+				var uri = new Uri(elasticsearchUrlForDeleteByQuery);
 				_traceProvider.Trace(TraceEventType.Verbose, "{1}: Request HTTP DELETE uri: {0}", uri.AbsoluteUri, "Search");
 
 				content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
@@ -54,7 +54,7 @@ namespace ElasticsearchCRUD.ContextDeleteByQuery
 				};
 				var response = await _client.SendAsync(request,_cancellationTokenSource.Token).ConfigureAwait(false);
 
-				resultDetails.RequestUrl = elasticsearchUrlForEntityGet;
+				resultDetails.RequestUrl = elasticsearchUrlForDeleteByQuery;
 				resultDetails.Status = response.StatusCode;
 
 				if (response.StatusCode != HttpStatusCode.OK)
